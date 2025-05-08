@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Actualizar Usuario{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mt-4">Actualizar Información</h2>
+
+        <form action="" method="post" class="p-4 bg-light rounded shadow-sm">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre de Usuario:</label>
+                <input type="text" name="username" class="form-control" value="{{ form.username.value }}" placeholder="Nombre de usuario" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico:</label>
+                <input type="email" name="email" class="form-control" value="{{ form.email.value }}" placeholder="Correo electrónico" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="new_password" class="form-label">Nueva Contraseña:</label>
+                <input type="password" name="new_password" class="form-control" placeholder="Nueva contraseña">
+            </div>
+
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña:</label>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Confirmar nueva contraseña">
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Actualizar Información</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Nuevo Permiso{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mt-4">Crear Nuevo Permiso</h2>
+
+        <form method="POST" class="p-4 bg-light rounded shadow-sm">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre del Permiso:</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Descripción:</label>
+                <textarea name="description" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="actions" class="form-label">Acciones Permitidas:</label>
+                <div class="d-flex flex-wrap">
+                    {% for action_code, action_name in available_actions %}
+                        <div class="form-check me-3">
+                            <input class="form-check-input action-checkbox" type="checkbox" value="{{ action_code }}" id="action_{{ action_code }}">
+                            <label class="form-check-label" for="action_{{ action_code }}">{{ action_name }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <input type="hidden" name="actions" id="selectedActions">
+
+            <button type="submit" class="btn btn-success w-100">Guardar Permiso</button>
+        </form>
+
+        <div class="mt-3 text-center">
+            <a href="{% url 'permissions_list' %}" class="btn btn-secondary">🔙 Volver a la Lista de Permisos</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const checkboxes = document.querySelectorAll(".action-checkbox");
+            const hiddenInput = document.getElementById("selectedActions");
+
+            function actualizarAcciones() {
+                let valores = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value);
+                hiddenInput.value = JSON.stringify(valores);
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", actualizarAcciones);
+            });
+
+            actualizarAcciones();
+        });
+    </script>
+
+{% endblock %}

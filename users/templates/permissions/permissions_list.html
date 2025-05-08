@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Permisos{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mt-4">Lista de Permisos</h2>
+        
+        <div class="d-flex justify-content-between mb-3">
+            <a href="{% url 'create_permission' %}" class="btn btn-primary">➕ Crear Permiso</a>
+            <a href="{% url 'roles_list' %}" class="btn btn-secondary">🔧 Gestionar Roles</a>
+            <a href="{% url 'users_list' %}" class="btn btn-secondary">👥 Gestionar Usuarios</a>
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="text" id="searchPermission" class="form-control" placeholder="Buscar permiso..." onkeyup="filterPermissions()">
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="button">🔍</button>
+            </div>
+        </div>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="permissionsList">
+                {% for permission in permissions %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ permission.name }}</td>
+                        <td>{{ permission.description }}</td>
+                        <td>
+                            <a href="{% url 'edit_permission' permission.id %}" class="btn btn-warning btn-sm">Editar</a>
+                            <button onclick="confirmarEliminacion({{ permission.id }}, '/users/permissions/delete/')" class="btn btn-danger btn-sm">❌ Eliminar</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function filterPermissions() {
+            let input = document.getElementById("searchPermission").value.toLowerCase();
+            let rows = document.getElementById("permissionsList").getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let permissionName = rows[i].getElementsByTagName("td")[1].innerText.toLowerCase();
+                rows[i].style.display = permissionName.includes(input) ? "" : "none";
+            }
+        }
+    </script>
+
+{% endblock %}
