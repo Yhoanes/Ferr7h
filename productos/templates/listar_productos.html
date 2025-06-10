@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Lista de Productos{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Lista de Productos</h1>
+    <a href="{% url 'crear_producto' %}" class="btn btn-success mb-3">Crear Producto</a>
+
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock Disponible</th>
+                <th>Proveedores</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr class="{% if producto.stock < 5 %}table-warning{% elif producto.stock == 0 %}table-danger{% endif %}">
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.categoria.nombre }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>{{ producto.stock }}</td>  <!-- 🔹 Mostrar stock actual -->
+                <td>
+                    {% for proveedor in producto.proveedores.all %}
+                        {{ proveedor.nombre }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning btn-sm">Editar</a>
+                    <form action="{% url 'eliminar_producto' producto.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

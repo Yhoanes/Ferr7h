@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Crear Proveedor{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Registrar Nuevo Proveedor</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+        </div>
+        <div class="mb-3">
+            {{ form.contacto.label_tag }}
+            {{ form.contacto }}
+        </div>
+        <div class="mb-3">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Proveedor</button>
+        <a href="{% url 'listar_proveedores' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

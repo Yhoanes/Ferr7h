@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Ventas{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <h1>Historial de Ventas</h1>
+
+    <!-- Filtros de búsqueda -->
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="cliente" class="form-label">Filtrar por Cliente</label>
+                <input type="text" id="cliente" name="cliente" class="form-control" placeholder="Ej: Juan Pérez">
+            </div>
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Filtrar por Fecha</label>
+                <input type="date" id="fecha" name="fecha" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="metodo_pago" class="form-label">Método de Pago</label>
+                <select id="metodo_pago" name="metodo_pago" class="form-control">
+                    <option value="">Todos</option>
+                    {% for metodo in metodos_pago %}
+                        <option value="{{ metodo.nombre }}">{{ metodo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Aplicar Filtros</button>
+    </form>
+
+    <!-- Tabla de ventas -->
+    {% if ventas and ventas|length > 0 %}
+
+    <table class="table table-bordered mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>Cliente</th>
+                <th>Monto Total</th>
+                <th>Productos</th>
+                <th>Método de Pago</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.cliente.nombre }}</td>
+                <td>{{ venta.monto_total }} Bs</td>
+                <td>
+                    {% if venta.productos.all %}
+                        {% for producto in venta.productos.all %}
+                            {{ producto.nombre }} ({{ producto.cantidad }})<br>
+                        {% endfor %}
+                    {% else %}
+                        {{ venta.producto.nombre }} ({{ venta.cantidad }})  <!-- Si la relación es ForeignKey -->
+                    {% endif %}
+                </td>
+                <td>{{ venta.pago.tipo_pago.nombre }}</td>
+                <td>{{ venta.fecha }}</td>
+                <td>
+                    <a href="{% url 'view_sale' venta.id %}" class="btn btn-info btn-sm">Ver</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="alert alert-warning">No hay ventas registradas aún.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

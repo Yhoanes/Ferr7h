@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Editar Producto{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Editar Producto</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+        </div>
+        <div class="mb-3">
+            {{ form.categoria.label_tag }}
+            {{ form.categoria }}
+        </div>
+        <div class="mb-3">
+            {{ form.proveedores.label_tag }}
+            {{ form.proveedores }}
+        </div>
+        <div class="mb-3">
+            {{ form.precio.label_tag }}
+            {{ form.precio }}
+        </div>
+        <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+        <a href="{% url 'listar_productos' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

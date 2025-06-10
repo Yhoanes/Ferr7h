@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Productos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📦 Reporte de Productos</h1>
+
+    <!-- Filtro por categoría (si es que lo activas por GET) -->
+    <form method="get" class="mb-4 d-flex justify-content-center gap-2">
+        <select name="categoria" class="form-select w-auto">
+            <option value="">🔎 Todas las categorías</option>
+            {% for categoria in categorias %}
+                <option value="{{ categoria }}" {% if categoria == request.GET.categoria %}selected{% endif %}>{{ categoria }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Aplicar filtro</button>
+    </form>
+
+    <!-- Botones de exportación -->
+    <div class="text-center mb-3">
+        <a href="{% url 'exportar_excel_productos' %}" class="btn btn-success mx-2">📄 Exportar Excel</a>
+        <a href="{% url 'exportar_pdf_productos' %}" class="btn btn-danger mx-2">🖨 Exportar PDF</a>
+    </div>
+
+    <!-- Gráfico de productos más vendidos -->
+    <div class="card p-3 shadow-sm mb-4">
+        <h4 class="text-center">🏆 Top 10 Productos más Vendidos</h4>
+        <canvas id="productosMasVendidosChart"></canvas>
+    </div>
+
+    <!-- Tabla de stock actual -->
+    <div class="card p-3 shadow-sm mb-4">
+        <h4 class="text-center">📦 Inventario Actual</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos_stock %}
+                        <tr class="{% if p.stock == 0 %}table-danger{% elif p.stock < 5 %}table-warning{% endif %}">
+                            <td>{{ p.nombre }}</td>
+                            <td>{{ p.stock }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">No hay productos.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const labels = [{% for p in productos_mas_vendidos %}"{{ p.nombre }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+    const data = [{% for p in productos_mas_vendidos %}{{ p.total_vendido|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+    new Chart(document.getElementById("productosMasVendidosChart"), {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Unidades Vendidas",
+                data: data,
+                backgroundColor: "rgba(54, 162, 235, 0.6)",
+                borderColor: "#007bff",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Unidades' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

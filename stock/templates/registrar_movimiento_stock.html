@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Movimiento de Stock{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Registrar Movimiento de Stock</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.producto.label_tag }}
+            {{ form.producto }}
+        </div>
+        <div class="mb-3">
+            {{ form.tipo_movimiento.label_tag }}
+            {{ form.tipo_movimiento }}
+        </div>
+        <div class="mb-3">
+            {{ form.motivo.label_tag }}
+            {{ form.motivo }}
+        </div>
+        <div class="mb-3">
+            {{ form.cantidad.label_tag }}
+            {{ form.cantidad }}
+        </div>
+        <div class="mb-3">
+            {{ form.comentario.label_tag }}
+            {{ form.comentario }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Movimiento</button>
+        <a href="{% url 'listar_stock' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

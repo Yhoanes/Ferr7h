@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Ventas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📊 Reporte de Ventas</h1>
+
+    <!-- Botones de exportación -->
+    <div class="text-center mb-3">
+        <a href="{% url 'exportar_excel_ventas' %}" class="btn btn-success mx-2">📄 Exportar Excel</a>
+        <a href="{% url 'exportar_pdf_ventas' %}" class="btn btn-danger mx-2">🖨 Exportar PDF</a>
+    </div>
+
+    <!-- Filtros con pestañas -->
+    <div class="card p-3 shadow-sm mb-4">
+        <form method="GET">
+            <h5 class="text-center fw-bold">🎯 Filtrar ventas por:</h5>
+
+            <!-- Tabs -->
+            <ul class="nav nav-tabs justify-content-center mt-2" id="filtrosTabs">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-dia">📅 Día</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-mes">📆 Mes</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-anio">📆 Año</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-rango">⏳ Rango</a></li>
+            </ul>
+
+            <!-- Contenido de filtros -->
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="tab-dia">
+                    <label>📅 Seleccionar día:</label>
+                    <input type="text" id="filtroDia" name="dia" class="form-control">
+                </div>
+
+                <div class="tab-pane fade" id="tab-mes">
+                    <label>📆 Seleccionar mes:</label>
+                    <input type="text" id="filtroMes" name="mes" class="form-control">
+                </div>
+
+                <div class="tab-pane fade" id="tab-anio">
+                    <label>📆 Seleccionar año:</label>
+                    <input type="text" id="filtroAnio" name="anio" class="form-control">
+                </div>
+
+                <div class="tab-pane fade" id="tab-rango">
+                    <label>⏳ Seleccionar rango:</label>
+                    <div class="d-flex gap-2">
+                        <input type="text" id="filtroInicio" name="fecha_inicio" class="form-control">
+                        <input type="text" id="filtroFin" name="fecha_fin" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">🔎 Aplicar Filtro</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de ventas -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total Venta</th>
+                    <th>Cliente</th>
+                    <th>Método de Pago</th>
+                    <th>Registrado por</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                    <tr>
+                        <td>{{ venta.fecha }}</td>
+                        <td>{{ venta.producto__nombre }}</td>
+                        <td>{{ venta.cantidad }}</td>
+                        <td>${{ venta.producto__precio }}</td>
+                        <td>${{ venta.monto_total }}</td>
+                        <td>{{ venta.cliente__nombre }}</td>
+                        <td>{{ venta.pago__tipo_pago }}</td>
+                        <td>{{ venta.usuario__username }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No hay datos disponibles.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Total de ventas -->
+    <div class="alert alert-success text-center fw-bold mt-4">
+        💰 Total de Ventas Filtradas: ${{ total_ventas }}
+    </div>
+
+    <!-- Gráfico -->
+    <div class="mt-5">
+        <h3 class="text-center">📈 Tendencias de Ventas</h3>
+        <canvas id="ventasChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Flatpickr CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Calendarios por filtro
+    flatpickr("#filtroDia", {
+        dateFormat: "Y-m-d"
+    });
+
+    flatpickr("#filtroMes", {
+        plugins: [
+            new monthSelectPlugin({
+                shorthand: true,
+                dateFormat: "Y-m",
+                theme: "light"
+            })
+        ]
+    });
+
+    flatpickr("#filtroAnio", {
+        dateFormat: "Y",
+        plugins: [
+            {
+                onReady: function (selectedDates, dateStr, instance) {
+                    instance.currentYearElement.setAttribute("step", 1);
+                }
+            }
+        ]
+    });
+
+    flatpickr("#filtroInicio", {
+        dateFormat: "Y-m-d"
+    });
+
+    flatpickr("#filtroFin", {
+        dateFormat: "Y-m-d"
+    });
+
+    // Gráfico
+    fetch("{% url 'api_datos_ventas' %}")
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById("ventasChart"), {
+                type: "line",
+                data: {
+                    labels: data.fechas,
+                    datasets: [{
+                        label: "Cantidad Vendida",
+                        data: data.montos,
+                        borderColor: "#007bff",
+                        backgroundColor: "rgba(0, 123, 255, 0.2)",
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true }
+                    }
+                }
+            });
+        });
+});
+</script>
+
+<!-- Plugin de Flatpickr para seleccionar mes -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+{% endblock %}

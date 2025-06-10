@@ -1,18 +1,80 @@
 {% if request.user.is_authenticated %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'dashboard' %}">📊 Dashboard</a>
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">📊 FERRETERIA 7H</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'users_list' %}">👥 Usuarios</a>
+
+                <!-- Menú de Ventas -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="ventasDropdown" role="button" data-bs-toggle="dropdown">
+                        🛒 Ventas
+                    </a>
+                    <ul class="dropdown-menu bg-secondary">
+                        <li><a class="dropdown-item text-light" href="{% url 'sales_new' %}">➕ Nueva Venta</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'sales_history' %}">📜 Historial de Ventas</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'clients_manage' %}">👥 Gestión de Clientes</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'manage_finances' %}">💰 Gestión Financiera</a></li>
+                    </ul>
                 </li>
+
+                <!-- Menú de Productos -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="productosDropdown" role="button" data-bs-toggle="dropdown">
+                        📦 Productos
+                    </a>
+                    <ul class="dropdown-menu bg-secondary">
+                        <li><a class="dropdown-item text-light" href="{% url 'listar_productos' %}">📦 Ver Productos</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'listar_categorias' %}">🏷️ Categorías</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'listar_proveedores' %}">🚚 Proveedores</a></li>
+                    </ul>
+                </li>
+
+                <!-- Menú de Stock -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="stockDropdown" role="button" data-bs-toggle="dropdown">
+                        🔄 Stock
+                    </a>
+                    <ul class="dropdown-menu bg-secondary">
+                        <li><a class="dropdown-item text-light" href="{% url 'listar_stock' %}">📊 Movimientos de Stock</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'registrar_movimiento_stock' %}">➕ Nuevo Movimiento</a></li>
+                    </ul>
+                </li>
+
+                <!-- Menú de Reportes -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="reportesDropdown" role="button" data-bs-toggle="dropdown">
+                        📑 Reportes
+                    </a>
+                    <ul class="dropdown-menu bg-secondary">
+                        <li><a class="dropdown-item text-light" href="{% url 'reportes_ventas' %}">📈 Ventas</a></li>
+                        <li><a class="dropdown-item text-light" href="{% url 'reportes_productos' %}">📦 Productos</a></li>
+                        <li class="dropdown-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="reportesStockDropdown" role="button" data-bs-toggle="dropdown">
+                                📊 Stock
+                            </a>
+                            <ul class="dropdown-menu bg-dark">
+                                <li><a class="dropdown-item text-light" href="{% url 'reportes_stock_salida' %}">➡️ Salida de Stock</a></li>
+                                <li><a class="dropdown-item text-light" href="{% url 'reportes_stock_entrada' %}">⬅️ Entrada de Stock</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Usuarios (Solo Admin) -->
+                {% if request.user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">🚪 Cerrar Sesión</a>
+                    <a class="nav-link text-light" href="{% url 'users_list' %}">👤 Usuarios</a>
+                </li>
+                {% endif %}
+
+                <!-- Cerrar sesión -->
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'logout' %}">🚪 Cerrar Sesión</a>
                 </li>
             </ul>
         </div>

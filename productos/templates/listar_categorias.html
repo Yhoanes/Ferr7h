@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Lista de Categorías{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Lista de Categorías</h1>
+    <a href="{% url 'crear_categoria' %}" class="btn btn-success mb-3">Crear Categoría</a>
+    
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for categoria in categorias %}
+            <tr>
+                <td>{{ categoria.nombre }}</td>
+                <td>{{ categoria.descripcion }}</td>
+                <td>
+                    <a href="{% url 'editar_categoria' categoria.id %}" class="btn btn-warning btn-sm">Editar</a>
+                    <form action="{% url 'eliminar_categoria' categoria.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

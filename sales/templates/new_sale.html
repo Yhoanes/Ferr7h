@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Nueva Venta{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <h1>Registrar Nueva Venta</h1>
+
+    <form method="POST" id="ventaForm">
+        {% csrf_token %}
+        
+        <!-- Búsqueda dinámica de cliente -->
+        <div class="mb-3 position-relative">
+            <label for="search_cliente" class="form-label">Buscar Cliente</label>
+            <input type="hidden" id="cliente_id" name="cliente">
+            <input type="text" id="search_cliente" name="search_cliente" class="form-control" placeholder="Escriba el nombre..." onkeyup="buscarCliente()" autocomplete="off">
+            <div id="clientesLista" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></div>
+            <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#clienteModal">
+                Registrar Nuevo Cliente
+            </button>
+        </div>
+
+        <!-- Selección de productos con cantidad -->
+        <div class="mb-3">
+            <label for="producto" class="form-label">Producto</label>
+            <select id="producto" name="producto" class="form-select">
+                <option value="">Seleccione un producto</option>
+                {% for producto in productos %}
+                    <option value="{{ producto.id }}" data-stock="{{ producto.stock }}">{{ producto.nombre }} (Stock: {{ producto.stock }})</option>
+                {% endfor %}
+            </select>
+            <label for="cantidad" class="form-label mt-2">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" class="form-control" min="1" placeholder="Ingrese cantidad">
+        </div>
+
+        <!-- Aplicar descuento -->
+        <div class="mb-3">
+            <label for="descuento" class="form-label">Descuento</label>
+            <select id="descuento" name="descuento" class="form-select">
+                <option value="">Sin descuento</option>
+                {% for descuento in descuentos %}
+                    <option value="{{ descuento.id }}">{{ descuento.nombre }} - {{ descuento.porcentaje }}%</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Método de pago -->
+        <div class="mb-3">
+            <label for="metodo_pago" class="form-label">Método de Pago</label>
+            <select id="metodo_pago" name="metodo_pago" class="form-select">
+                {% for metodo in metodos_pago %}
+                    <option value="{{ metodo.id }}">{{ metodo.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Monto total -->
+        <div class="mb-3">
+            <label for="monto_total" class="form-label">Monto Total</label>
+            <input type="number" id="monto_total" name="monto_total" class="form-control" step="0.01" required placeholder="Ingrese el monto total">
+        </div>
+
+        <!-- Botón para finalizar la venta -->
+        <button type="submit" class="btn btn-success">Finalizar Venta</button>
+    </form>
+</div>
+
+<!-- Modal para registrar nuevo cliente -->
+<div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clienteModalLabel">Registrar Nuevo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="registerClientForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del Cliente</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" id="email" name="email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="text" id="telefono" name="telefono" class="form-control">
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="registrarCliente()">Guardar Cliente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para búsqueda dinámica de clientes -->
+<script>
+function buscarCliente() {
+    let input = document.getElementById("search_cliente").value.trim().toLowerCase();
+    let lista = document.getElementById("clientesLista");
+
+    if (input.length < 2) {
+        lista.style.display = "none";
+        return;
+    }
+
+    fetch("{% url 'buscar_clientes' %}?query=" + encodeURIComponent(input))
+        .then(response => response.json())
+        .then(data => {
+            lista.innerHTML = "";
+            lista.style.display = data.length > 0 ? "block" : "none";
+
+            data.forEach(cliente => {
+                let item = document.createElement("a");
+                item.className = "list-group-item list-group-item-action";
+                item.textContent = cliente.nombre;
+                item.setAttribute("data-id", cliente.id);
+                item.onclick = () => {
+                    document.getElementById("search_cliente").value = cliente.nombre;
+                    document.getElementById("cliente_id").value = cliente.id;
+                    lista.style.display = "none";
+                };
+                lista.appendChild(item);
+            });
+        })
+        .catch(error => console.error("Error al buscar clientes:", error));
+}
+
+// Validar cantidad según stock disponible
+document.getElementById("producto").addEventListener("change", function() {
+    let selectedOption = this.options[this.selectedIndex];
+    let stockDisponible = selectedOption.getAttribute("data-stock");
+    document.getElementById("cantidad").setAttribute("max", stockDisponible);
+});
+
+function registrarCliente() {
+    console.log("Intentando enviar solicitud...");  // 🔹 Verificar en `Console`
+
+    let formData = new FormData(document.getElementById("registerClientForm"));
+
+    fetch("{% url 'register_client' %}?next=sales_new", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Respuesta recibida:", data);
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+</script>
+
+{% endblock %}

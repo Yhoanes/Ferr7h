@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Salida de Stock{% endblock %}
+
+{% block content %}
+    <h1>🚚 Reporte de Salida de Stock</h1>
+
+    <table class="stock-table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Cantidad Retirada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimiento in movimientos_salida %}
+                <tr>
+                    <td>{{ movimiento.fecha }}</td>
+                    <td>{{ movimiento.producto__nombre }}</td>
+                    <td>{{ movimiento.cantidad }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No hay datos disponibles.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

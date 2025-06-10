@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Detalle de Venta{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Detalles de la Venta</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Cliente: {{ venta.cliente.nombre }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Fecha: {{ venta.fecha }}</h6>
+            
+            <p class="card-text"><strong>Monto Total:</strong> ${{ venta.monto_total }}</p>
+            <p class="card-text"><strong>Método de Pago:</strong> {{ venta.pago.tipo_pago.nombre }}</p>
+            <p class="card-text"><strong>Descuento Aplicado:</strong> {{ venta.descuento.nombre }} ({{ venta.descuento.porcentaje }}%)</p>
+        </div>
+    </div>
+
+    <table class="table mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in venta.productos.all %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.cantidad }}</td>
+                    <td>${{ producto.precio }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'sales_history' %}" class="btn btn-primary mt-3">Volver al Historial</a>
+</div>
+{% endblock %}
